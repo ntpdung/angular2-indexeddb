@@ -152,6 +152,46 @@ export class AngularIndexedDB {
         return promise;
     }
 
+    
+
+    bulkUpdate(storeName: string, array: any, key?: any) {
+        let self = this;
+        let promise = new Promise<any>((resolve, reject)=> {
+            self.dbWrapper.validateBeforeTransaction(storeName, reject);
+
+            let transaction = self.dbWrapper.createTransaction({ storeName: storeName,
+                    dbMode: self.utils.dbMode.readWrite,
+                    error: (e: Event) => {
+                        reject(e);
+                    },
+                    complete: (e: Event) => {
+                        resolve(e);
+                    },
+                    abort: (e: Event) => {
+                        reject(e);
+                    }
+                })
+            let objectStore = transaction.objectStore(storeName);
+            let ticketAsyncsLeft = array.length;
+            for (let i = 0; i < array.length; i++) {
+                let value = array[i];
+                let putRequest = objectStore.put(value, key);
+                putRequest.onsuccess = function(e) {
+                    ticketAsyncsLeft--;
+                    if (ticketAsyncsLeft == 0) {
+                        resolve(array.length);
+                    }
+                };
+                putRequest.onerror = function(e) {
+                    ticketAsyncsLeft--;
+                    reject();
+                }
+            }
+        });
+
+        return promise;
+    }
+
     delete(storeName: string, key: any) {
         let self = this;
         let promise = new Promise<any>((resolve, reject)=> {
@@ -307,7 +347,13 @@ class DbWrapper {
         }
     }
 
-    createTransaction(options: { storeName: string, dbMode: string, error: (e: Event) => any, complete: (e: Event) => any, abort?: (e:Event) => any }): IDBTransaction {
+    createTransaction(options: { 
+        storeName: string, dbMode: string,
+         error: (e: Event) => any, 
+         complete: (e: Event) => any, 
+         abort?: (e:Event) => any }
+        ): IDBTransaction 
+    {
         let trans: IDBTransaction = this.db.transaction(options.storeName, options.dbMode);
         trans.onerror = options.error;
         trans.oncomplete = options.complete;

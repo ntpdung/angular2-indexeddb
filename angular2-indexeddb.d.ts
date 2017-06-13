@@ -7,6 +7,7 @@ export declare class AngularIndexedDB {
     getAll(storeName: string, keyRange?: IDBKeyRange, indexDetails?: IndexDetails): Promise<any>;
     add(storeName: string, value: any, key?: any): Promise<any>;
     update(storeName: string, value: any, key?: any): Promise<any>;
+    bulkUpdate(storeName: string, value: any, key?: any): Promise<any>;
     delete(storeName: string, key: any): Promise<any>;
     openCursor(storeName: string, cursorCallback: (evt: Event) => void, keyRange?: IDBKeyRange): Promise<any>;
     clear(storeName: string): Promise<any>;
