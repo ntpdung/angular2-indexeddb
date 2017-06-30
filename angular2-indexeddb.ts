@@ -175,6 +175,7 @@ export class AngularIndexedDB {
             let ticketAsyncsLeft = array.length;
             for (let i = 0; i < array.length; i++) {
                 let value = array[i];
+                value.synced = true;
                 let putRequest = objectStore.put(value, key);
                 putRequest.onsuccess = function(e) {
                     ticketAsyncsLeft--;
